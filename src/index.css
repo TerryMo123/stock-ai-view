@@ -1,0 +1,67 @@
+:root {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #213547;
+  background-color: #f5f5f5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* 左侧导航固定视口高度，菜单区内部滚动 */
+.app-layout-root {
+  min-height: 100vh;
+}
+
+.app-sider-fixed {
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100vh !important;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.app-sider-fixed .ant-layout-sider-children {
+  height: 100%;
+}
+
+.app-sider-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.app-sider-brand {
+  flex-shrink: 0;
+  padding: 16px 14px 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.app-sider-menu {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.app-main-layout {
+  min-height: 100vh;
+}

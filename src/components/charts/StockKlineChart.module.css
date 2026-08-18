@@ -1,0 +1,53 @@
+.wrap {
+  position: relative;
+  background: #fff;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 4px 0 0;
+}
+
+.maLegend {
+  position: absolute;
+  top: 10px;
+  left: 64px;
+  z-index: 9;
+  display: flex;
+  gap: 14px;
+  padding: 2px 6px;
+  font-size: 12px;
+  line-height: 1;
+  color: #595959;
+  pointer-events: none;
+}
+
+.maLegend span {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ma5 {
+  color: #f5a623;
+}
+
+.ma10 {
+  color: #1890ff;
+}
+
+.ma20 {
+  color: #9254de;
+}
+
+.tfTag {
+  margin-left: 8px;
+  color: #8c8c8c;
+}
+
+/* 夹在 K 线与下方指标区之间，轻量分隔 */
+.toolRow {
+  position: absolute;
+  left: 56px;
+  top: 68%;
+  z-index: 10;
+  padding: 4px 0;
+  pointer-events: auto;
+}
