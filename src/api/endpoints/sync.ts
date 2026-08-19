@@ -1,7 +1,9 @@
-import { apiGet } from '@/api/client'
+import { apiGet, apiPost } from '@/api/client'
 import type {
   PaginatedResponse,
   SyncFailureGroup,
+  SyncJobStatus,
+  SyncMode,
   SyncRecordItem,
   SyncSummaryResponse,
 } from '@/api/types'
@@ -28,4 +30,17 @@ export function fetchSyncRecords(
 
 export function fetchSyncFailed(page = 1, pageSize = 50) {
   return fetchSyncRecords(page, pageSize, 'failed')
+}
+
+export function fetchSyncJob() {
+  return apiGet<SyncJobStatus>('/api/sync/job')
+}
+
+export function triggerSync(body: {
+  mode?: SyncMode
+  pool?: string
+  workers?: number
+  years?: number
+}) {
+  return apiPost<SyncJobStatus>('/api/sync/trigger', body)
 }

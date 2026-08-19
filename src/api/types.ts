@@ -138,3 +138,37 @@ export interface BacktestRunResponse {
   summary: BacktestForwardStats[]
   matches: BacktestMatchRow[]
 }
+
+export type UserRole = 'user' | 'admin'
+
+export interface AuthUser {
+  username: string
+  role: UserRole
+  display_name: string
+  permissions: { trigger_sync: boolean }
+}
+
+export interface LoginResponse {
+  access_token: string
+  token_type: string
+  user: AuthUser
+}
+
+export type SyncMode = 'latest-day' | 'repair' | 'repair-failed'
+
+export interface SyncJobStatus {
+  accepted?: boolean
+  status: 'idle' | 'running' | 'failed'
+  mode: SyncMode | null
+  started_at: string | null
+  finished_at: string | null
+  message: string | null
+  triggered_by: string | null
+  stats: {
+    total: number
+    success: number
+    failed: number
+    bars?: number
+    divergences?: number
+  } | null
+}

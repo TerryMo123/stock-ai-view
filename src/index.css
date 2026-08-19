@@ -65,3 +65,15 @@ body {
 .app-main-layout {
   min-height: 100vh;
 }
+
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: linear-gradient(180deg, #f5f5f5 0%, #eaeef2 100%);
+}
+
+.login-card {
+  width: min(420px, 100%);
+}

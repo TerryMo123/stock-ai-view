@@ -1,26 +1,59 @@
-import { Button, Drawer, Grid, Layout, Menu, Typography } from 'antd'
-import { MenuOutlined } from '@ant-design/icons'
-import { Link, Outlet, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { Button, Drawer, Grid, Layout, Menu, Modal, Space, Tag, Typography } from 'antd'
+import { ExclamationCircleOutlined, LogoutOutlined, MenuOutlined } from '@ant-design/icons'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { useAuth } from '@/auth/AuthContext'
 
 const { Header, Content, Sider } = Layout
 
 const SIDER_WIDTH = 220
 
-const navItems = [
-  { key: '/', label: <Link to="/">MACD 背离列表</Link> },
-  { key: '/backtest', label: <Link to="/backtest">历史回测</Link> },
-  { key: '/sync', label: <Link to="/sync">数据同步面板</Link> },
-]
-
 export function AppLayout() {
   const screens = Grid.useBreakpoint()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const { user, logout, isAdmin } = useAuth()
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const selected = ['/sync', '/backtest', '/'].includes(pathname)
-    ? [pathname === '/sync' ? '/sync' : pathname === '/backtest' ? '/backtest' : '/']
+
+  const navItems = useMemo(() => {
+    const items = [
+      { key: '/', label: <Link to="/">MACD 背离列表</Link> },
+      { key: '/backtest', label: <Link to="/backtest">历史回测</Link> },
+    ]
+    if (isAdmin) {
+      items.push({ key: '/sync', label: <Link to="/sync">数据同步面板</Link> })
+      items.push({ key: '/admin', label: <Link to="/admin">管理员操作</Link> })
+    }
+    return items
+  }, [isAdmin])
+
+  const selected = ['/sync', '/backtest', '/admin', '/'].includes(pathname)
+    ? [
+        pathname === '/sync'
+          ? '/sync'
+          : pathname === '/backtest'
+            ? '/backtest'
+            : pathname === '/admin'
+              ? '/admin'
+              : '/',
+      ]
     : []
   const isMobile = !screens.md
+
+  const handleLogout = () => {
+    Modal.confirm({
+      title: '确认退出登录？',
+      icon: <ExclamationCircleOutlined />,
+      okText: '确认退出',
+      cancelText: '取消',
+      okButtonProps: { danger: true },
+      centered: true,
+      onOk: () => {
+        logout()
+        navigate('/login', { replace: true })
+      },
+    })
+  }
 
   const menu = (
     <Menu
@@ -71,7 +104,14 @@ export function AppLayout() {
               aria-label="打开菜单"
             />
           )}
-          <Typography.Text style={{ fontWeight: 600, fontSize: 16 }}>Stock AI View</Typography.Text>
+          <Typography.Text style={{ fontWeight: 600, fontSize: 16, flex: 1 }}>Stock AI View</Typography.Text>
+          <Space size={8}>
+            <Typography.Text type="secondary">{user?.display_name || user?.username}</Typography.Text>
+            <Tag color={isAdmin ? 'purple' : 'blue'}>{isAdmin ? '管理员' : '普通用户'}</Tag>
+            <Button type="text" danger icon={<LogoutOutlined />} onClick={handleLogout}>
+              退出
+            </Button>
+          </Space>
         </Header>
         <Content
           className="app-content"
