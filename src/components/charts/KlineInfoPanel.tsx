@@ -5,6 +5,7 @@ import {
   formatDateLabel,
   formatPct,
   formatPrice,
+  formatTurnover,
   formatVolume,
   priceColor,
 } from './klineFormat'
@@ -73,7 +74,7 @@ export function KlineInfoPanel({ bar, prevClose, kdj }: Props) {
       {kdj && row('K', fmtKdj(kdj.k))}
       {kdj && row('D', fmtKdj(kdj.d))}
       {kdj && row('J', fmtKdj(kdj.j))}
-      {row('换手率', '--')}
+      {row('换手率', formatTurnover(bar.turnover_rate))}
       {row('盘后量', '--')}
       {row('盘后额', '--')}
       <span className={styles.hint} aria-hidden>

@@ -17,24 +17,24 @@ export function AppLayout() {
 
   const navItems = useMemo(() => {
     const items = [
+      { key: '/stocks', label: <Link to="/stocks">股票列表</Link> },
       { key: '/', label: <Link to="/">MACD 背离列表</Link> },
       { key: '/backtest', label: <Link to="/backtest">历史回测</Link> },
     ]
     if (isAdmin) {
-      items.push({ key: '/sync', label: <Link to="/sync">数据同步面板</Link> })
       items.push({ key: '/admin', label: <Link to="/admin">管理员操作</Link> })
     }
     return items
   }, [isAdmin])
 
-  const selected = ['/sync', '/backtest', '/admin', '/'].includes(pathname)
+  const selected = ['/backtest', '/admin', '/stocks', '/'].includes(pathname)
     ? [
-        pathname === '/sync'
-          ? '/sync'
-          : pathname === '/backtest'
-            ? '/backtest'
-            : pathname === '/admin'
-              ? '/admin'
+        pathname === '/backtest'
+          ? '/backtest'
+          : pathname === '/admin'
+            ? '/admin'
+            : pathname === '/stocks'
+              ? '/stocks'
               : '/',
       ]
     : []

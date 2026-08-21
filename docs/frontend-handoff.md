@@ -40,7 +40,7 @@
 | volume | BIGINT | 成交量 |
 | amount | DECIMAL | 成交额 |
 | adjust_type | VARCHAR(8) | 默认 `qfq` |
-| source | VARCHAR(16) | 默认 `eastmoney` |
+| source | VARCHAR(16) | 默认 `tushare` |
 
 索引：`(trade_date)`、`(code, trade_date)`。
 

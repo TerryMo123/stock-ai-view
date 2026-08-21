@@ -41,7 +41,7 @@ const FIELD_TIPS = {
   horizons:
     '对每段相似历史，从其最后一个交易日收盘价起，统计之后 N 个交易日的涨跌幅，用于汇总胜率、平均收益等。',
   useChips:
-    '开启后在相似度计算中纳入筹码分布特征（获利比例、成本偏离、集中度等）。数据来自库表 stock_chip，需先执行 stock-backtest db-sync-chips；东方财富 CYQ 仅约 90 个交易日，有效匹配样本主要在此窗口内。',
+    '开启后在相似度计算中纳入筹码分布特征（获利比例、成本偏离、集中度等）。数据来自库表 stock_chip，需先执行 stock-backtest db-sync-chips 或同步时加 --with-chips。',
 } as const
 
 function FieldLabel({ label, tip, required }: { label: string; tip: string; required?: boolean }) {
@@ -285,7 +285,7 @@ export function BacktestPage() {
                 {data.chips_in_similarity ? (
                   <Tag color="green">
                     是
-                    {data.chips_source === 'db' ? '（库内）' : data.chips_source === 'live' ? '（实时）' : ''}
+                    {data.chips_source === 'db' ? '（库内）' : ''}
                   </Tag>
                 ) : (
                   <Tag>否</Tag>

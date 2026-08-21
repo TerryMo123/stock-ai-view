@@ -111,5 +111,5 @@ stock-ai-view/
 - 日期：`YYYY-MM-DD`；日期时间：ISO 8601。
 - 周期 `timeframe`：`daily` | `weekly` | `monthly` | `half_year` | `yearly`。
 - 背离 `kind`：`top` | `bottom`。
-- 筹码：表 `stock_chip`，CLI `stock-backtest db-sync-chips`（数据源 AkShare `stock_cyq_em` / 东方财富 CYQ，约 90 个交易日）。
+- 筹码：表 `stock_chip`，由库内日 K + 换手率本地递推（`db-sync-chips` 或同步时 `--with-chips`）。
 - 换手率：`stock_daily.turnover_rate`（%），`db-sync` / `db-sync-single-day` 同步日 K 时写入；历史补全用 `db-sync-turnover`。

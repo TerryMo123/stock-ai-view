@@ -42,6 +42,35 @@ export interface DailyBar {
   close_price: number
   volume: number | null
   amount: number | null
+  /** 换手率（%），日 K 来自库；周/月/年取区间末日 */
+  turnover_rate?: number | null
+}
+
+export interface StockInfoRow {
+  code: string
+  ts_code: string
+  name: string
+  market: string
+  industry: string
+  list_status: string
+  list_date: string | null
+}
+
+export interface StockBoardStat {
+  market: string
+  count: number
+}
+
+export interface StockBoardStatsResponse {
+  total: number
+  boards: StockBoardStat[]
+}
+
+export interface StockUniverseResponse {
+  total: number
+  page: number
+  page_size: number
+  items: StockInfoRow[]
 }
 
 export interface IndicatorPoint {
@@ -132,8 +161,8 @@ export interface BacktestRunResponse {
     volume_ratio: number | null
   }
   chips_in_similarity: boolean
-  /** 筹码来源：db=库内 / live=实时 CYQ / none=未使用 */
-  chips_source?: 'db' | 'live' | 'none'
+  /** 筹码来源：db=库内 / none=未使用 */
+  chips_source?: 'db' | 'none'
   data_bars: number
   summary: BacktestForwardStats[]
   matches: BacktestMatchRow[]
@@ -154,7 +183,24 @@ export interface LoginResponse {
   user: AuthUser
 }
 
-export type SyncMode = 'latest-day' | 'repair' | 'repair-failed'
+export type SyncMode =
+  | 'latest-day'
+  | 'repair'
+  | 'repair-failed'
+  | 'missing-history'
+  | 'rescan-divergence'
+  | 'sync-universe'
+  | 'sync-turnover'
+  | 'sync-chips'
+  | 'full-sync'
+
+export interface SyncJobProgress {
+  done: number
+  total: number
+  percent: number
+  current_code: string | null
+  current_name: string | null
+}
 
 export interface SyncJobStatus {
   accepted?: boolean
@@ -164,11 +210,28 @@ export interface SyncJobStatus {
   finished_at: string | null
   message: string | null
   triggered_by: string | null
+  progress?: SyncJobProgress | null
   stats: {
     total: number
     success: number
     failed: number
     bars?: number
     divergences?: number
+    stock_info?: number
+    trade_cal?: number
+    rows?: number
+    skipped?: number
   } | null
+}
+
+export interface SyncScheduleStatus {
+  enabled: boolean
+  hour: number
+  minute: number
+  timezone: string
+  pool: string
+  workers: number
+  years: number
+  running: boolean
+  next_run_at: string | null
 }

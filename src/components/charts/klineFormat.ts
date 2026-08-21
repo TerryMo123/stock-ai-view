@@ -37,6 +37,12 @@ export function formatAmount(v: number | null | undefined): string {
   return v.toFixed(0)
 }
 
+/** 换手率，库内单位为百分比数值（如 1.23 表示 1.23%） */
+export function formatTurnover(v: number | null | undefined): string {
+  if (v == null || Number.isNaN(v)) return '--'
+  return `${v.toFixed(2)}%`
+}
+
 export function formatPrice(v: number): string {
   return v.toFixed(2)
 }

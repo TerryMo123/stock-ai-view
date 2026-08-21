@@ -5,6 +5,7 @@ import type {
   SyncJobStatus,
   SyncMode,
   SyncRecordItem,
+  SyncScheduleStatus,
   SyncSummaryResponse,
 } from '@/api/types'
 
@@ -34,6 +35,10 @@ export function fetchSyncFailed(page = 1, pageSize = 50) {
 
 export function fetchSyncJob() {
   return apiGet<SyncJobStatus>('/api/sync/job')
+}
+
+export function fetchSyncSchedule() {
+  return apiGet<SyncScheduleStatus>('/api/sync/schedule')
 }
 
 export function triggerSync(body: {

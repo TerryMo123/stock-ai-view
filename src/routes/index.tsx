@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { DivergenceListPage } from '@/pages/DivergenceListPage'
 import { StockDetailPage } from '@/pages/StockDetailPage'
-import { SyncStatusPage } from '@/pages/SyncStatusPage'
+import { StockListPage } from '@/pages/StockListPage'
 import { BacktestPage } from '@/pages/BacktestPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { AdminPage } from '@/pages/AdminPage'
@@ -22,15 +22,8 @@ export const router = createBrowserRouter(
       ),
       children: [
         { index: true, element: <DivergenceListPage /> },
+        { path: 'stocks', element: <StockListPage /> },
         { path: 'backtest', element: <BacktestPage /> },
-        {
-          path: 'sync',
-          element: (
-            <RequireAdmin>
-              <SyncStatusPage />
-            </RequireAdmin>
-          ),
-        },
         {
           path: 'admin',
           element: (

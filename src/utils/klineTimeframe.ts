@@ -73,6 +73,7 @@ function aggregateBy(
       close_price: last.close_price,
       volume: hasVolume ? volume : null,
       amount: hasAmount ? amount : null,
+      turnover_rate: last.turnover_rate ?? null,
     })
   }
   return result
