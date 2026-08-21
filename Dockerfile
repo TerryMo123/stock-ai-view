@@ -1,5 +1,9 @@
 FROM node:20-alpine AS build
 WORKDIR /app
+
+# 国内构建加速（npmmirror）
+RUN npm config set registry https://registry.npmmirror.com
+
 COPY package.json package-lock.json* ./
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 COPY . .
