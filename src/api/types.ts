@@ -168,6 +168,45 @@ export interface BacktestRunResponse {
   matches: BacktestMatchRow[]
 }
 
+export interface StockAIAnalysisSection {
+  view: string
+  points: string[]
+}
+
+export interface StockAIAnalysisResponse {
+  code: string
+  name: string
+  generated_at: string
+  model: string
+  data_as_of: {
+    last_trade_date: string | null
+    finance_period: string | null
+    news_from: string | null
+    news_to: string | null
+    capital_as_of?: string | null
+  }
+  context_used: {
+    technical: boolean
+    chips: boolean
+    finance: boolean
+    news: boolean
+    news_kind?: 'news' | 'reports' | null
+    capital?: boolean
+    divergences: boolean
+  }
+  analysis: {
+    summary: string
+    technical: StockAIAnalysisSection
+    fundamental: StockAIAnalysisSection
+    capital?: StockAIAnalysisSection
+    news: StockAIAnalysisSection
+    risks: string[]
+    scenarios: { bull: string; base: string; bear: string }
+    disclaimer: string
+  }
+  raw_facts: Record<string, unknown>
+}
+
 export type UserRole = 'user' | 'admin'
 
 export interface AuthUser {

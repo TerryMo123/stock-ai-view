@@ -67,6 +67,7 @@ function pct(v: number | null | undefined, digits = 2) {
 }
 
 function simPct(v: number) {
+  if (v == null || Number.isNaN(v)) return '—'
   return `${(v * 100).toFixed(1)}%`
 }
 
