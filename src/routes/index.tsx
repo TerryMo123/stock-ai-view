@@ -4,6 +4,7 @@ import { DivergenceListPage } from '@/pages/DivergenceListPage'
 import { StockDetailPage } from '@/pages/StockDetailPage'
 import { StockListPage } from '@/pages/StockListPage'
 import { BacktestPage } from '@/pages/BacktestPage'
+import { AiChatPage } from '@/pages/AiChatPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { AdminPage } from '@/pages/AdminPage'
 import { RequireAdmin, RequireAuth } from '@/auth/RequireAuth'
@@ -24,6 +25,7 @@ export const router = createBrowserRouter(
         { index: true, element: <DivergenceListPage /> },
         { path: 'stocks', element: <StockListPage /> },
         { path: 'backtest', element: <BacktestPage /> },
+        { path: 'ai-chat', element: <AiChatPage /> },
         {
           path: 'admin',
           element: (

@@ -20,6 +20,7 @@ export function AppLayout() {
       { key: '/stocks', label: <Link to="/stocks">股票列表</Link> },
       { key: '/', label: <Link to="/">MACD 背离列表</Link> },
       { key: '/backtest', label: <Link to="/backtest">历史回测</Link> },
+      { key: '/ai-chat', label: <Link to="/ai-chat">AI 分析</Link> },
     ]
     if (isAdmin) {
       items.push({ key: '/admin', label: <Link to="/admin">管理员操作</Link> })
@@ -27,15 +28,17 @@ export function AppLayout() {
     return items
   }, [isAdmin])
 
-  const selected = ['/backtest', '/admin', '/stocks', '/'].includes(pathname)
+  const selected = ['/backtest', '/ai-chat', '/admin', '/stocks', '/'].includes(pathname)
     ? [
         pathname === '/backtest'
           ? '/backtest'
-          : pathname === '/admin'
-            ? '/admin'
-            : pathname === '/stocks'
-              ? '/stocks'
-              : '/',
+          : pathname === '/ai-chat'
+            ? '/ai-chat'
+            : pathname === '/admin'
+              ? '/admin'
+              : pathname === '/stocks'
+                ? '/stocks'
+                : '/',
       ]
     : []
   const isMobile = !screens.md

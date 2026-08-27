@@ -41,14 +41,23 @@ function errorMessage(body: unknown, fallback: string) {
     const detail = (body as { detail: unknown }).detail
     if (typeof detail === 'string') return detail
   }
+  if (typeof body === 'string' && body.trim()) {
+    const trimmed = body.trim()
+    if (trimmed.startsWith('<') || trimmed.toLowerCase().includes('<html')) {
+      return `${fallback}（网关/服务器返回了网页而非 JSON，常见原因：超时或 502）`
+    }
+    return trimmed.slice(0, 200)
+  }
   return fallback
 }
 
-async function parseBody(res: Response): Promise<unknown> {
+async function readPayload(res: Response): Promise<{ json?: unknown; text: string }> {
+  const text = await res.text()
+  if (!text) return { text: '' }
   try {
-    return await res.json()
+    return { json: JSON.parse(text), text }
   } catch {
-    return await res.text()
+    return { text }
   }
 }
 
@@ -58,22 +67,36 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers)
   if (!headers.has('Accept')) headers.set('Accept', 'application/json')
   if (token) headers.set('Authorization', `Bearer ${token}`)
-  const res = await fetch(url, { ...init, headers })
+  let res: Response
+  try {
+    res = await fetch(url, { ...init, headers })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    throw new ApiError(`网络请求失败：${msg}`, 0)
+  }
+  const payload = await readPayload(res)
   if (res.status === 401) {
-    const body = await parseBody(res)
     const isLogin = path.includes('/api/auth/login')
     if (!isLogin) {
       clearAuthToken()
       redirectToLogin()
     }
-    throw new ApiError(errorMessage(body, '请先登录'), 401, body)
+    throw new ApiError(errorMessage(payload.json ?? payload.text, '请先登录'), 401, payload.json ?? payload.text)
   }
   if (!res.ok) {
-    const body = await parseBody(res)
-    throw new ApiError(errorMessage(body, res.statusText || `HTTP ${res.status}`), res.status, body)
+    throw new ApiError(
+      errorMessage(payload.json ?? payload.text, res.statusText || `HTTP ${res.status}`),
+      res.status,
+      payload.json ?? payload.text,
+    )
   }
   if (res.status === 204) return undefined as T
-  return res.json() as Promise<T>
+  if (payload.json !== undefined) return payload.json as T
+  throw new ApiError(
+    `服务器未返回 JSON（HTTP ${res.status}）。若分析较久，可能是网关超时，请稍后重试或联系管理员加长超时。`,
+    res.status,
+    payload.text,
+  )
 }
 
 export async function apiGet<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
