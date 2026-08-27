@@ -5,6 +5,7 @@ const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? APP_BASE).replace(/\/$/, 
 
 export interface AiChatStreamBody {
   bootstrap?: boolean
+  compare_peers?: boolean
   system?: string
   messages?: { role: 'user' | 'assistant'; content: string }[]
   lookback_days?: number
@@ -15,6 +16,7 @@ export interface AiChatStreamBody {
   news_days?: number
   news_limit?: number
   capital_days?: number
+  peer_limit?: number
   enrich_stocks?: boolean
 }
 
@@ -31,7 +33,17 @@ export type AiChatSseEvent =
       context_used?: Record<string, unknown>
       data_as_of?: Record<string, unknown>
       market_snapshot?: Record<string, unknown>
+      charts?: import('@/components/AiChartsPanel').AiChartSpec[]
+      industry?: string
+      peers?: { code: string; name: string; market?: string; industry?: string }[]
+      mode?: string
     }
+  | {
+      type: 'peers'
+      industry?: string
+      items: { code: string; name: string; market?: string; industry?: string }[]
+    }
+  | { type: 'charts'; items: import('@/components/AiChartsPanel').AiChartSpec[] }
   | { type: 'reasoning'; text: string }
   | { type: 'content'; text: string }
   | { type: 'error'; message: string }

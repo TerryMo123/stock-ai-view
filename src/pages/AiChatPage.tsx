@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Card,
-  Collapse,
   Input,
   Space,
   Spin,
@@ -13,14 +12,8 @@ import {
 } from 'antd'
 import { ClearOutlined, RobotOutlined, SendOutlined } from '@ant-design/icons'
 import { streamGeneralAIChat } from '@/api/endpoints/aiChat'
-
-interface ChatMessage {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-  reasoning?: string
-  streaming?: boolean
-}
+import { AiChatBubble, type AiChatBubbleMessage } from '@/components/AiChatBubble'
+import { AiChartsPanel, type AiChartSpec } from '@/components/AiChartsPanel'
 
 function uid() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
@@ -35,16 +28,18 @@ const FALLBACK_SUGGESTIONS = [
 
 export function AiChatPage() {
   const { message } = App.useApp()
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<AiChatBubbleMessage[]>([])
   const [systemPrompt, setSystemPrompt] = useState('')
   const [model, setModel] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>(FALLBACK_SUGGESTIONS)
+  const [marketCharts, setMarketCharts] = useState<AiChartSpec[]>([])
   const [statusText, setStatusText] = useState('')
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
   const [ready, setReady] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
   const abortRef = useRef<AbortController | null>(null)
+  const pendingChartsRef = useRef<AiChartSpec[]>([])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -70,10 +65,15 @@ export function AiChatPage() {
             setStatusText(ev.message)
             return
           }
+          if (ev.type === 'charts') {
+            setMarketCharts(ev.items || [])
+            return
+          }
           if (ev.type === 'meta') {
             setSystemPrompt(ev.system)
             setModel(ev.model)
             if (ev.suggestions?.length) setSuggestions(ev.suggestions)
+            if (ev.charts?.length) setMarketCharts(ev.charts)
             setStatusText('')
             setReady(true)
             return
@@ -102,9 +102,10 @@ export function AiChatPage() {
     setInput('')
     setBusy(true)
     setStatusText('正在生成…')
+    pendingChartsRef.current = []
 
     const history = messages.map((m) => ({
-      role: m.role,
+      role: m.role as 'user' | 'assistant',
       content: m.content,
     }))
     history.push({ role: 'user', content: q })
@@ -129,6 +130,15 @@ export function AiChatPage() {
         (ev) => {
           if (ev.type === 'status') {
             setStatusText(ev.message)
+            return
+          }
+          if (ev.type === 'charts') {
+            pendingChartsRef.current = ev.items || []
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId ? { ...m, charts: pendingChartsRef.current } : m,
+              ),
+            )
             return
           }
           if (ev.type === 'reasoning') {
@@ -186,8 +196,18 @@ export function AiChatPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 140px)', minHeight: 480 }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: 'calc(100vh - 120px)',
+        minHeight: 520,
+        maxWidth: 1100,
+        margin: '0 auto',
+        width: '100%',
+      }}
+    >
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginBottom: 8 }}>
         <Typography.Title level={3} style={{ margin: 0 }}>
           <RobotOutlined /> AI 分析
         </Typography.Title>
@@ -197,8 +217,8 @@ export function AiChatPage() {
           新对话
         </Button>
       </div>
-      <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-        可问大盘、创业板、板块或个股（消息里写 6 位代码会自动补事实）。流式展示思考与回复。
+      <Typography.Paragraph type="secondary" style={{ marginTop: 0, marginBottom: 8 }}>
+        图表展示真实数据；文字只给短结论。可问大盘、板块或个股（写 6 位代码会自动补事实）。
       </Typography.Paragraph>
 
       <Card
@@ -215,7 +235,8 @@ export function AiChatPage() {
           )}
 
           {ready && messages.length === 0 && (
-            <div style={{ padding: '12px 4px' }}>
+            <div style={{ padding: '4px 0 12px' }}>
+              {marketCharts.length > 0 ? <AiChartsPanel charts={marketCharts} /> : null}
               <Typography.Text type="secondary">试试这样问：</Typography.Text>
               <div style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {suggestions.map((s) => (
@@ -228,51 +249,7 @@ export function AiChatPage() {
           )}
 
           {messages.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                marginBottom: 12,
-                display: 'flex',
-                justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start',
-              }}
-            >
-              <div
-                style={{
-                  maxWidth: '88%',
-                  background: m.role === 'user' ? '#1677ff' : '#f5f5f5',
-                  color: m.role === 'user' ? '#fff' : 'inherit',
-                  borderRadius: 10,
-                  padding: '8px 12px',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  fontSize: 13,
-                  lineHeight: 1.55,
-                }}
-              >
-                {m.role === 'assistant' && (m.reasoning || m.streaming) ? (
-                  <Collapse
-                    size="small"
-                    style={{ marginBottom: 8, background: '#fff' }}
-                    defaultActiveKey={m.streaming && !m.content ? ['think'] : []}
-                    items={[
-                      {
-                        key: 'think',
-                        label: m.streaming && !m.content ? '思考中…' : '思考过程',
-                        children: (
-                          <Typography.Paragraph
-                            type="secondary"
-                            style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: 12 }}
-                          >
-                            {m.reasoning || '…'}
-                          </Typography.Paragraph>
-                        ),
-                      },
-                    ]}
-                  />
-                ) : null}
-                {m.content || (m.streaming ? '…' : '')}
-              </div>
-            </div>
+            <AiChatBubble key={m.id} message={m} wide />
           ))}
 
           {busy && statusText && messages.length > 0 ? (
